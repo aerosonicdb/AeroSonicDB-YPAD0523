@@ -1,45 +1,16 @@
-import subprocess
-import sys
-import venv
-import os
+from setuptools import setup, find_packages
 
 
-def setup():
+with open('requirements.txt') as f:
+    requirements = f.readlines()
 
-    # Target directory for the virtual environment
-    venv_dir = 'venv'
-
-    # Python requirements file
-    requirements_file = 'requirements.txt'
-
-    # "Get Started" jupyter notebook
-    notebook_path = 'notebooks/AeroSonicDB_GetStarted.ipynb'
-
-    # check if the dataset has been downloaded
-    if not os.path.exists('dataset'):
-        
-        print('Dataset not found - run the "AeroSonicDB_GetStarted" notebook to download.')
-
-    # Check if the virtual environment already exists
-    if not os.path.exists(venv_dir):
-        # Create the virtual environment
-        venv.create(venv_dir, system_site_packages=False, clear=True)
-        print("Virtual environment created.")
-    else:
-        print("Virtual environment already exists.")
-
-    # Activate the virtual environment
-    venv_activation_script = os.path.join(venv_dir, 'Scripts', 'activate.bat')
-    subprocess.run(venv_activation_script, shell=True)
-    print("Virtual environment activated")
-
-    # Install required packages in the virtual environment
-    subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', requirements_file])
-    print("Dependencies installed.")
-
-    # Launch Jupyter Notebook
-    subprocess.run([sys.executable, '-m', 'jupyter', 'notebook', notebook_path])
-
-
-if __name__ == '__main__':
-    setup()
+setup(
+    name='AeroSonicDB',
+    version='0.1.0',
+    description='Download and get started with the AeroSonicDB-YPAD0523 audio dataset of low-flying aircraft.',
+    author='Blake Downward',
+    author_email='aerosonicdb@gmail.com',
+    url='https://github.com/aerosonicdb/AeroSonicDB-YPAD0523',
+    packages=find_packages(where='aerosonicdb'),
+    install_requires=requirements
+)
