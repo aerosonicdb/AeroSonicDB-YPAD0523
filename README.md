@@ -9,8 +9,8 @@ Download and get started with the AeroSonicDB-YPAD0523 dataset of low-altitude a
 Clone this repository and enter it.
 git clone https://github.com/aerosonicdb/AeroSonicDB-YPAD0523.git
 
-2. ### Download dataset and install environment
-Run "setup.py" to download the dataset, setup environment, then open the "AeroSonicDB GetStarted" jupyter notebook.
+2. ### Install environment
+Run "setup.py" to setup the environment, then run the "AeroSonicDB GetStarted" jupyter notebook to download the dataset.
 
-Alternatively, if you only want to download the dataset - just run the "download_dataset.py"
+Alternatively, if you only want to download the dataset - simply import aerosonicdb.data then invoke aerosonicdb.data.download()
 
