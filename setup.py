@@ -2,10 +2,9 @@ import subprocess
 import sys
 import venv
 import os
-from download_dataset import download_ds
 
 
-def dataset_setup():
+def setup():
 
     # Target directory for the virtual environment
     venv_dir = 'venv'
@@ -14,12 +13,12 @@ def dataset_setup():
     requirements_file = 'requirements.txt'
 
     # "Get Started" jupyter notebook
-    notebook_path = 'AeroSonicDB_GetStarted.ipynb'
+    notebook_path = 'notebooks/AeroSonicDB_GetStarted.ipynb'
 
     # check if the dataset has been downloaded
     if not os.path.exists('dataset'):
-        download_ds()
-        print('Dataset downloaded')
+        
+        print('Dataset not found - run the "AeroSonicDB_GetStarted" notebook to download.')
 
     # Check if the virtual environment already exists
     if not os.path.exists(venv_dir):
@@ -43,4 +42,4 @@ def dataset_setup():
 
 
 if __name__ == '__main__':
-    dataset_setup()
+    setup()
