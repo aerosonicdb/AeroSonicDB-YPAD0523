@@ -10,7 +10,7 @@ Clone this repository and enter it.
 git clone https://github.com/aerosonicdb/AeroSonicDB-YPAD0523.git
 
 2. ### Install environment
-Run "setup.py" to setup the environment, then run the "AeroSonicDB GetStarted" jupyter notebook to download the dataset.
+From the command line, run "pip install -e ." to install the application, then run the "AeroSonicDB GetStarted" jupyter notebook to download the dataset.
 
-Alternatively, if you only want to download the dataset - simply import aerosonicdb.data then invoke aerosonicdb.data.download()
+Alternatively, if you only want to download the dataset - as above, run "pip install -e .", then "import aerosonicdb.data" and invoke "aerosonicdb.data.download()"
 
