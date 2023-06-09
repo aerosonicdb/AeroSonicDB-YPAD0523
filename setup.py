@@ -1,9 +1,5 @@
 from setuptools import setup, find_packages
 
-
-with open('requirements.txt') as f:
-    requirements = f.readlines()
-
 setup(
     name='AeroSonicDB',
     version='0.1.0',
@@ -12,5 +8,5 @@ setup(
     author_email='aerosonicdb@gmail.com',
     url='https://github.com/aerosonicdb/AeroSonicDB-YPAD0523',
     packages=find_packages(where='aerosonicdb'),
-    install_requires=requirements
+    install_requires=['pandas', 'jupyter', 'notebook']
 )
