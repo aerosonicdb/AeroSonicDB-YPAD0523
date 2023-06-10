@@ -9,7 +9,7 @@ Download and get started with the AeroSonicDB-YPAD0523 dataset of low-altitude a
 Clone this repository and enter it.
 ```
 git clone https://github.com/aerosonicdb/AeroSonicDB-YPAD0523.git
-cd AeroSonciDB-YPAD0523
+cd AeroSonicDB-YPAD0523
 ```
 2. ### Install
 Run the following to install the package and dependencies.
