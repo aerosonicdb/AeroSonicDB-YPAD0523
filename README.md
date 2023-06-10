@@ -25,7 +25,7 @@ aerosonicdb.data.download.get()
 ```
 Alternatively, straight from the command line with
 ```
-python -m aerosondicb.data.download
+python -m aerosonicdb.data.download
 ```
 *The dataset will be downloaded to the data/raw directory*
 
