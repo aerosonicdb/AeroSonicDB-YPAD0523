@@ -19,23 +19,26 @@ def download():
     if not os.path.exists(target_directory):
         os.makedirs(target_directory)
 
-    # Download the audio zip file
-    urllib.request.urlretrieve(audio_zip, os.path.join(target_directory, 'audio.zip'))
+        # Download the audio zip file
+        urllib.request.urlretrieve(audio_zip, os.path.join(target_directory, 'audio.zip'))
 
-    # Download the meta files
-    urllib.request.urlretrieve(sample_meta_csv, os.path.join(target_directory, 'sample_meta.csv'))
-    urllib.request.urlretrieve(aircraft_meta_csv, os.path.join(target_directory, 'aircraft_meta.csv'))
-    urllib.request.urlretrieve(aircraft_meta_json, os.path.join(target_directory, 'aircraft_meta.json'))
-    urllib.request.urlretrieve(locations_json, os.path.join(target_directory, 'locations.json'))
-    urllib.request.urlretrieve(license_txt, os.path.join(target_directory, 'LICENSE.txt'))
-    urllib.request.urlretrieve(readme_md, os.path.join(target_directory, 'README.md'))
+        # Download the meta files
+        urllib.request.urlretrieve(sample_meta_csv, os.path.join(target_directory, 'sample_meta.csv'))
+        urllib.request.urlretrieve(aircraft_meta_csv, os.path.join(target_directory, 'aircraft_meta.csv'))
+        urllib.request.urlretrieve(aircraft_meta_json, os.path.join(target_directory, 'aircraft_meta.json'))
+        urllib.request.urlretrieve(locations_json, os.path.join(target_directory, 'locations.json'))
+        urllib.request.urlretrieve(license_txt, os.path.join(target_directory, 'LICENSE.txt'))
+        urllib.request.urlretrieve(readme_md, os.path.join(target_directory, 'README.md'))
 
-    # Extract the dataset
-    with zipfile.ZipFile(os.path.join(target_directory, 'audio.zip'), 'r') as zip_ref:
-        zip_ref.extractall(target_directory)
+        # Extract the dataset
+        with zipfile.ZipFile(os.path.join(target_directory, 'audio.zip'), 'r') as zip_ref:
+            zip_ref.extractall(target_directory)
 
-    # Clean up the zip file
-    os.remove(os.path.join(target_directory, 'audio.zip'))
+        # Clean up the zip file
+        os.remove(os.path.join(target_directory, 'audio.zip'))
+
+    else:
+        print('Dataset already downloaded - see the "data/raw" directory.')
 
 
 if __name__ == '__main__':
