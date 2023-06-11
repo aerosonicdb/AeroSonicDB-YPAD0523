@@ -3,7 +3,7 @@ import urllib.request
 import zipfile
 
 
-def download(target_directory = '../data/raw'):
+def download(target_directory = './data/raw'):
     # Target URLs for the dataset files on Zenodo
     audio_zip = 'https://zenodo.org/record/8004108/files/audio.zip'
     sample_meta_csv = 'https://zenodo.org/record/8004108/files/sample_meta.csv'
@@ -38,7 +38,7 @@ def download(target_directory = '../data/raw'):
         os.remove(os.path.join(target_directory, 'audio.zip'))
 
     else:
-        print('Dataset already downloaded - see the "../data/raw" directory.')
+        print('Dataset already downloaded - see the "./data/raw" directory.')
 
 
 if __name__ == '__main__':
