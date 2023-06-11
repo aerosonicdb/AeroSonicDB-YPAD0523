@@ -21,7 +21,7 @@ pip install -e .
 The simplest way to download the datset is to open the "AeroSonicDB_GetStarted" jupyter notebook and run all cells. Similarly, you can use the following lines of code in a python script or notebook.
 ```
 import aerosonicdb.data
-aerosonicdb.data.download.get()
+aerosonicdb.data.download()
 ```
 Alternatively, straight from the command line with
 ```
