@@ -1,4 +1,7 @@
 librosa
+tensorflow
+scikeras
+sklearn
 jupyter
 notebook
 pandas
