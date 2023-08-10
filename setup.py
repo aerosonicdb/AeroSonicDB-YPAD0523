@@ -8,5 +8,6 @@ setup(
     author_email='aerosonicdb@gmail.com',
     url='https://github.com/aerosonicdb/AeroSonicDB-YPAD0523',
     packages=find_packages(),
-    install_requires=['librosa', 'tensorflow', 'sklearn', 'scikeras', 'matplotlib', 'pandas', 'jupyter', 'notebook', 'aerosonicdb']
+    install_requires=['librosa', 'tensorflow', 'sklearn', 'scikeras', 'matplotlib', 'pandas', 'jupyter', 'notebook', 'aerosonicdb'],
+    package_dir={'': 'aerosonicdb'}
 )
