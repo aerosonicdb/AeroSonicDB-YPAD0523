@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='aerosonicdb',
+    name='AeroSonicDB',
     version='0.5.0',
     description='Download and get started with the AeroSonicDB-YPAD0523 audio dataset of low-flying aircraft.',
     author='Blake Downward',
