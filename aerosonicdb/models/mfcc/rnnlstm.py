@@ -75,7 +75,7 @@ def train_save_model(output_path=output_path,
                      verbose=0,
                      rand_seed=0):
     
-    keras.utils.set_random_seed(0)
+    keras.utils.set_random_seed(rand_seed)
     X, y, g = load_train_data(data_path=train_path, target_labels='class_label')
 
     X_train, y_train, X_val, y_val = train_val_split(X, y, g)
@@ -84,7 +84,7 @@ def train_save_model(output_path=output_path,
     model.summary()
 
     # train model
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), batch_size=batch_size, epochs=epochs)
+    model.fit(X_train, y_train, validation_data=(X_val, y_val), batch_size=batch_size, epochs=epochs, verbose=verbose)
 
     # save the model
     model_path = os.path.join(output_path, filename, 'model')
