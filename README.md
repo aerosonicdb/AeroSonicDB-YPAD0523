@@ -11,13 +11,16 @@ Clone this repository and enter it.
 git clone https://github.com/aerosonicdb/AeroSonicDB-YPAD0523.git
 cd AeroSonicDB-YPAD0523
 ```
-2. ### Install
+2. ### Create virtual environment and activate (optional)
+This step will help to avoid potential dependency conflicts.
+
+3. ### Install
 Run the following to install the package and dependencies.
 ```
 pip install -e .
 
 ```
-3. ### Download the dataset
+4. ### Download the dataset
 The simplest way to download the datset is to open the "AeroSonicDB_GetStarted" jupyter notebook and run all cells. Similarly, you can use the following lines of code in a python script or notebook.
 ```
 import aerosonicdb.data
