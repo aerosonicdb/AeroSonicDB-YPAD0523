@@ -1,9 +1,13 @@
 import os
 import urllib.request
 import zipfile
+from aerosonicdb.utils import get_project_root
+
+root_path = get_project_root()
+download_path = os.path.join(root_path, 'data/raw')
 
 
-def download(target_directory = './data/raw'):
+def download(target_path=download_path):
     # Target URLs for the dataset files on Zenodo
     audio_zip = 'https://zenodo.org/record/8004108/files/audio.zip'
     sample_meta_csv = 'https://zenodo.org/record/8004108/files/sample_meta.csv'
@@ -14,31 +18,30 @@ def download(target_directory = './data/raw'):
     readme_md = 'https://zenodo.org/record/8004108/files/README.md'
 
     # Specify and create the target directory for the dataset
-    
 
-    if not os.path.exists(target_directory):
-        os.makedirs(target_directory)
+    if not os.path.exists(target_path):
+        os.makedirs(target_path)
 
         # Download the audio zip file
-        urllib.request.urlretrieve(audio_zip, os.path.join(target_directory, 'audio.zip'))
+        urllib.request.urlretrieve(audio_zip, os.path.join(target_path, 'audio.zip'))
 
         # Download the meta files
-        urllib.request.urlretrieve(sample_meta_csv, os.path.join(target_directory, 'sample_meta.csv'))
-        urllib.request.urlretrieve(aircraft_meta_csv, os.path.join(target_directory, 'aircraft_meta.csv'))
-        urllib.request.urlretrieve(aircraft_meta_json, os.path.join(target_directory, 'aircraft_meta.json'))
-        urllib.request.urlretrieve(locations_json, os.path.join(target_directory, 'locations.json'))
-        urllib.request.urlretrieve(license_txt, os.path.join(target_directory, 'LICENSE.txt'))
-        urllib.request.urlretrieve(readme_md, os.path.join(target_directory, 'README.md'))
+        urllib.request.urlretrieve(sample_meta_csv, os.path.join(target_path, 'sample_meta.csv'))
+        urllib.request.urlretrieve(aircraft_meta_csv, os.path.join(target_path, 'aircraft_meta.csv'))
+        urllib.request.urlretrieve(aircraft_meta_json, os.path.join(target_path, 'aircraft_meta.json'))
+        urllib.request.urlretrieve(locations_json, os.path.join(target_path, 'locations.json'))
+        urllib.request.urlretrieve(license_txt, os.path.join(target_path, 'LICENSE.txt'))
+        urllib.request.urlretrieve(readme_md, os.path.join(target_path, 'README.md'))
 
         # Extract the dataset
-        with zipfile.ZipFile(os.path.join(target_directory, 'audio.zip'), 'r') as zip_ref:
-            zip_ref.extractall(target_directory)
+        with zipfile.ZipFile(os.path.join(target_path, 'audio.zip'), 'r') as zip_ref:
+            zip_ref.extractall(target_path)
 
         # Clean up the zip file
-        os.remove(os.path.join(target_directory, 'audio.zip'))
+        os.remove(os.path.join(target_path, 'audio.zip'))
 
     else:
-        print('Dataset already downloaded - see the "./data/raw" directory.')
+        print(f'Dataset already downloaded - see {target_path}')
 
 
 if __name__ == '__main__':
