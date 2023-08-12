@@ -1,7 +1,7 @@
 librosa
 tensorflow
 scikeras
-sklearn
+scikit-learn
 jupyter
 notebook
 pandas
