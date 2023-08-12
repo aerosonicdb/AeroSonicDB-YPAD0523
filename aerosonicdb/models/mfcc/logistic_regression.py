@@ -13,7 +13,7 @@ train_path = os.path.join(root_path, 'data/processed/13_mfcc_5_train.json')
 output_path = os.path.join(root_path, 'models/mfcc_logistic_regression')
 
 if not os.path.exists(output_path):
-    os.mkdir(output_path)
+    os.makedirs(output_path)
 
 
 def run_cv(train_path=train_path, k=10, rand_seed=0):
