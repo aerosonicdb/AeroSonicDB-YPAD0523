@@ -20,7 +20,7 @@ def download(target_path=download_path):
     # Specify and create the target directory for the dataset
 
     if not os.path.exists(target_path):
-        os.mkdir(target_path)
+        os.makedirs(target_path)
 
         # Download the audio zip file
         urllib.request.urlretrieve(audio_zip, os.path.join(target_path, 'audio.zip'))
