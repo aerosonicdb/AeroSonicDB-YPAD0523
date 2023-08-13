@@ -45,7 +45,7 @@ def init_model(x):
     optimiser = keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=optimiser,
                   loss='BinaryCrossentropy',
-                  metrics=['binary_accuracy'])
+                  metrics=[tf.keras.metrics.AUC(curve='PR', name='PR-AUC')])
 
     # model.summary()
 
@@ -58,11 +58,20 @@ def run_cv(train_path=train_path, epochs=1, batch_size=216, rand_seed=0, verbose
     build = init_model(X)
     model = KerasClassifier(model=build, epochs=epochs, batch_size=batch_size, random_state=rand_seed, verbose=verbose)
 
-    results = cross_validate(model, X, y, cv=fetch_k_fold_cv_indicies(X, y, g, k=k))
-    mean = results['test_score'].mean() * 100
-    st_dev = results['test_score'].std() * 100
+    results = cross_validate(model, X, y,
+                             cv=fetch_k_fold_cv_indicies(X, y, g, k=k),
+                             scoring=['average_precision', 'precision_macro', 'precision_micro'])
 
-    print(f'Acc: %.2f%% (%.2f%%)' % (mean, st_dev))
+    mean = results['test_average_precision'].mean() * 100
+    st_dev = results['test_average_precision'].std() * 100
+    macro_mean = results['test_precision_macro'].mean() * 100
+    macro_st_dev = results['test_precision_macro'].std() * 100
+    micro_mean = results['test_precision_micro'].mean() * 100
+    micro_st_dev = results['test_precision_micro'].std() * 100
+
+    print(f'Average Precision Score: %.2f%% (%.2f%%)' % (mean, st_dev))
+    print(f'Macro Precision Score: %.2f%% (%.2f%%)' % (macro_mean, macro_st_dev))
+    print(f'Micro Precision Score: %.2f%% (%.2f%%)' % (micro_mean, micro_st_dev))
 
     return mean, st_dev
 
@@ -92,3 +101,6 @@ def train_save_model(output_path=output_path,
     
     print(f'Model saved to {model_path}.\n')
 
+
+if __name__ == '__main__':
+    run_cv(verbose=1)
