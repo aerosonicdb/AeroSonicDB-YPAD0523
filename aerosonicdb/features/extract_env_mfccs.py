@@ -2,37 +2,37 @@ import os
 import math
 import json
 import pandas as pd
-import numpy as np
 import librosa
 from aerosonicdb.utils import get_project_root
 
-root_path = get_project_root()
+ROOT_PATH = get_project_root()
 
 # set the i/o paths
-dataset_path = os.path.join(root_path, 'data/raw')
-env_audio_path = os.path.join(dataset_path, 'env_audio')
-output_path = os.path.join(root_path, 'data/processed')
-class_path = os.path.join(dataset_path, 'environment_class_mappings.csv')
+DATASET_PATH = os.path.join(ROOT_PATH, 'data/raw')
+ENV_AUDIO_PATH = os.path.join(DATASET_PATH, 'env_audio')
+OUTPUT_PATH = os.path.join(ROOT_PATH, 'data/processed')
+CLASS_PATH = os.path.join(DATASET_PATH, 'environment_class_mappings.csv')
 
 # set the constants and derivatives
-sample_rate = 22050
-duration = 5
-n_mfcc = 13
-n_fft = 2048
-hop_length = 512
+SAMPLE_RATE = 22050
+DURATION = 5
+N_MFCC = 13
+N_FFT = 2048
+HOP_LENGTH = 512
 
-samples_per_segment = sample_rate * duration
-expected_mfcc_vectors_per_segment = math.ceil(samples_per_segment / hop_length)
+SAMPLES_PER_SEGMENT = SAMPLE_RATE * DURATION
+EXPECTED_MFCC_VECTORS_PER_SEGMENT = math.ceil(SAMPLES_PER_SEGMENT / HOP_LENGTH)
 
 
 def save_env_mfccs(env_n,
-                   duration=duration,
-                   n_mfcc=n_mfcc,
-                   n_fft=n_fft,
-                   hop_length=hop_length,
-                   class_path=class_path,
-                   output_path=output_path):
-
+                   duration=DURATION,
+                   n_mfcc=N_MFCC,
+                   n_fft=N_FFT,
+                   sample_rate=SAMPLE_RATE,
+                   hop_length=HOP_LENGTH,
+                   class_path=CLASS_PATH,
+                   output_path=OUTPUT_PATH,
+                   env_audio_path=ENV_AUDIO_PATH):
     audio_path = os.path.join(env_audio_path, f'{str(env_n)}_AUDIO.wav')
     json_path = os.path.join(output_path, f'{str(env_n)}_ENV_{n_mfcc}_mfcc_{duration}.json')
     class_map = pd.read_csv(class_path)
@@ -51,11 +51,11 @@ def save_env_mfccs(env_n,
 
         if sr == sample_rate:
 
-            clip_segments = len(signal) // samples_per_segment
+            clip_segments = len(signal) // SAMPLES_PER_SEGMENT
 
             for s in range(clip_segments):
-                start = samples_per_segment * s
-                end = start + samples_per_segment
+                start = SAMPLES_PER_SEGMENT * s
+                end = start + SAMPLES_PER_SEGMENT
 
                 mfcc = librosa.feature.mfcc(y=signal[start:end],
                                             sr=sample_rate,
@@ -68,7 +68,7 @@ def save_env_mfccs(env_n,
 
                 class_label = class_map[n_str].iloc[s]
 
-                if len(mfcc) == expected_mfcc_vectors_per_segment:
+                if len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:
                     data['mfcc'].append(mfcc.tolist())
                     data['class_label'].append(str(class_label))
 
@@ -78,16 +78,13 @@ def save_env_mfccs(env_n,
 
     else:
         print(f'MFCCs already extracted. See {output_path}')
-        
 
-if __name__ == "__main__":
+
+def extract_all_env_feats():
     for i in range(0, 6):
         n = i + 1
-        save_env_mfccs(
-            env_n=n,
-            output_path=output_path,
-            duration=duration,
-            n_mfcc=n_mfcc,
-            n_fft=n_fft,
-            hop_length=hop_length,
-            class_path=class_path)
+        save_env_mfccs(env_n=n)
+
+
+if __name__ == "__main__":
+    extract_all_env_feats()

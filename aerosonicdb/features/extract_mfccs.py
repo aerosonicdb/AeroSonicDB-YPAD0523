@@ -7,25 +7,25 @@ import librosa
 from aerosonicdb.utils import get_project_root
 
 
-root_path = get_project_root()
+ROOT_PATH = get_project_root()
 
 # set the default i/o paths
-dataset_path = os.path.join(root_path, 'data/raw')
-output_path = os.path.join(root_path, 'data/processed')
+DATASET_PATH = os.path.join(ROOT_PATH, 'data/raw')
+OUTPUT_PATH = os.path.join(ROOT_PATH, 'data/processed')
 
 # set the constants and derivatives
-sample_rate = 22050
-duration = 5
-n_mfcc = 13
-n_fft = 2048
-hop_length = 512
+SAMPLE_RATE = 22050
+DURATION = 5
+N_MFCC = 13
+N_FFT = 2048
+HOP_LENGTH = 512
 
-samples_per_segment = sample_rate * duration
-expected_mfcc_vectors_per_segment = math.ceil(samples_per_segment / hop_length)
+SAMPLES_PER_SEGMENT = SAMPLE_RATE * DURATION
+EXPECTED_MFCC_VECTORS_PER_SEGMENT = math.ceil(SAMPLES_PER_SEGMENT / HOP_LENGTH)
 
 
 # function to return the audio path for a given file
-def get_audio_path(df, filename, dataset_path=dataset_path):
+def get_audio_path(df, filename, dataset_path=DATASET_PATH):
     sep = os.sep
     audio_dir = dataset_path + sep + 'audio' + sep
     audio_class = df.loc[df['filename'] == filename, 'class'].values[0]
@@ -34,11 +34,13 @@ def get_audio_path(df, filename, dataset_path=dataset_path):
 
 
 # function to load audio, split into 5 second segments, transform to MFCCs then save to a JSON file
-def save_mfccs(dataset_path=dataset_path,
-               output_path=output_path,
-               n_mfcc=n_mfcc,
-               n_fft=n_fft,
-               hop_length=hop_length,
+def save_mfccs(dataset_path=DATASET_PATH,
+               output_path=OUTPUT_PATH,
+               n_mfcc=N_MFCC,
+               n_fft=N_FFT,
+               hop_length=HOP_LENGTH,
+               duration=DURATION,
+               sample_rate=SAMPLE_RATE,
                set_str='test'):
 
     meta_path = os.path.join(dataset_path, 'sample_meta.csv')
@@ -84,11 +86,11 @@ def save_mfccs(dataset_path=dataset_path,
 
                 # data['filename'].append(base_filename)
 
-                clip_segments = len(signal) // samples_per_segment
+                clip_segments = len(signal) // SAMPLES_PER_SEGMENT
 
                 for s in range(clip_segments):
-                    start = samples_per_segment * s
-                    end = start + samples_per_segment
+                    start = SAMPLES_PER_SEGMENT * s
+                    end = start + SAMPLES_PER_SEGMENT
 
                     mfcc = librosa.feature.mfcc(y=signal[start:end], 
                                                 sr=sample_rate, 
@@ -97,7 +99,7 @@ def save_mfccs(dataset_path=dataset_path,
                                                 hop_length=hop_length)
                     mfcc = mfcc.T
 
-                    if len(mfcc) == expected_mfcc_vectors_per_segment:
+                    if len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:
                         data['mfcc'].append(mfcc.tolist())
                         data['class_label'].append(str(class_label))
                         data['subclass_label'].append(str(subclass_label))
@@ -111,16 +113,16 @@ def save_mfccs(dataset_path=dataset_path,
         
 
 if __name__ == "__main__":
-    save_mfccs(dataset_path=dataset_path,
-               output_path=output_path,
-               n_mfcc=n_mfcc,
-               n_fft=n_fft,
-               hop_length=hop_length,
+    save_mfccs(dataset_path=DATASET_PATH,
+               output_path=OUTPUT_PATH,
+               n_mfcc=N_MFCC,
+               n_fft=N_FFT,
+               hop_length=HOP_LENGTH,
                set_str='train')
 
-    save_mfccs(dataset_path=dataset_path,
-               output_path=output_path,
-               n_mfcc=n_mfcc,
-               n_fft=n_fft,
-               hop_length=hop_length,
+    save_mfccs(dataset_path=DATASET_PATH,
+               output_path=OUTPUT_PATH,
+               n_mfcc=N_MFCC,
+               n_fft=N_FFT,
+               hop_length=HOP_LENGTH,
                set_str='test')

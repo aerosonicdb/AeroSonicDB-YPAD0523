@@ -16,12 +16,12 @@ absl.logging.set_verbosity(absl.logging.ERROR)
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.FATAL)
 
 
-root_path = get_project_root()
-feat_path = os.path.join(root_path, 'data/processed')
-train_path = os.path.join(feat_path, '13_mfcc_5_train.json')
-test_path = os.path.join(feat_path, '13_mfcc_5_test.json')
-env_feat_base = '_ENV_13_mfcc_5.json'
-output_path = os.path.join(root_path, 'models')
+ROOT_PATH = get_project_root()
+FEAT_PATH = os.path.join(ROOT_PATH, 'data/processed')
+TRAIN_PATH = os.path.join(FEAT_PATH, '13_mfcc_5_train.json')
+TEST_PATH = os.path.join(FEAT_PATH, '13_mfcc_5_test.json')
+ENV_FEAT_BASE = '_ENV_13_mfcc_5.json'
+OUTPUT_PATH = os.path.join(ROOT_PATH, 'models')
 
 
 def build_model(input_shape):
@@ -69,7 +69,7 @@ def init_model(x):
     return model
 
 
-def run_cv(train_path=train_path, test_path=test_path, epochs=1, batch_size=216, rand_seed=0, verbose=0, k=10):
+def run_cv(train_path=TRAIN_PATH, test_path=TEST_PATH, epochs=1, batch_size=216, rand_seed=0, verbose=0, k=10):
     keras.utils.set_random_seed(rand_seed)
     X, y, g = load_train_data(data_path=train_path, target_label='class_label')
     build = init_model(X)
@@ -113,7 +113,7 @@ def run_cv(train_path=train_path, test_path=test_path, epochs=1, batch_size=216,
 
     print(f'\nRunning {k}-model evaluation against the Environment set...')
     # evaluate against the environment set
-    X_test, y_test = load_env_test_data(data_path=feat_path, json_base=env_feat_base, target_label='class_label')
+    X_test, y_test = load_env_test_data(data_path=FEAT_PATH, json_base=ENV_FEAT_BASE, target_label='class_label')
 
     env_results = []
     for est in cv_estimators:
@@ -134,11 +134,11 @@ def run_cv(train_path=train_path, test_path=test_path, epochs=1, batch_size=216,
     return cv_scores, test_scores, env_scores
 
 
-def train_save_model(output_path=output_path,
-                     train_path=train_path,
-                     filename='mfcc_cnn', 
-                     epochs=1, 
-                     batch_size=216, 
+def train_save_model(output_path=OUTPUT_PATH,
+                     train_path=TRAIN_PATH,
+                     filename='mfcc_cnn',
+                     epochs=1,
+                     batch_size=216,
                      verbose=0,
                      rand_seed=0):
     
@@ -163,4 +163,3 @@ def train_save_model(output_path=output_path,
 
 if __name__ == '__main__':
     run_cv()
-

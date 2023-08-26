@@ -1,5 +1,4 @@
 import os
-import json
 import pickle
 import numpy as np
 from sklearn.model_selection import cross_validate
@@ -11,18 +10,18 @@ from aerosonicdb.utils import load_frame_train_data
 from aerosonicdb.utils import load_frame_test_data
 from aerosonicdb.utils import load_frame_env_test_data
 
-root_path = get_project_root()
-feat_path = os.path.join(root_path, 'data/processed')
-train_path = os.path.join(feat_path, '13_mfcc_5_train.json')
-test_path = os.path.join(feat_path, '13_mfcc_5_test.json')
-env_feat_base = '_ENV_13_mfcc_5.json'
-output_path = os.path.join(root_path, 'models')
+ROOT_PATH = get_project_root()
+FEAT_PATH = os.path.join(ROOT_PATH, 'data/processed')
+TRAIN_PATH = os.path.join(FEAT_PATH, '13_mfcc_5_train.json')
+TEST_PATH = os.path.join(FEAT_PATH, '13_mfcc_5_test.json')
+ENV_FEAT_BASE = '_ENV_13_mfcc_5.json'
+OUTPUT_PATH = os.path.join(ROOT_PATH, 'models')
 
-if not os.path.exists(output_path):
-    os.makedirs(output_path)
+if not os.path.exists(OUTPUT_PATH):
+    os.makedirs(OUTPUT_PATH)
 
 
-def run_cv(train_path=train_path, k=10, rand_seed=0, test_path=test_path):
+def run_cv(train_path=TRAIN_PATH, k=10, rand_seed=0, test_path=TEST_PATH):
     X, y, g = load_frame_train_data(data_path=train_path, target_label='class_label')
 
     model = LogisticRegression(random_state=rand_seed, max_iter=400)
@@ -64,7 +63,7 @@ def run_cv(train_path=train_path, k=10, rand_seed=0, test_path=test_path):
     print(f'\nRunning {k}-model evaluation against the Environment set...')
 
     # evaluate against the environment set
-    X_test, y_test = load_frame_env_test_data(data_path=feat_path, json_base=env_feat_base, target_label='class_label')
+    X_test, y_test = load_frame_env_test_data(data_path=FEAT_PATH, json_base=ENV_FEAT_BASE, target_label='class_label')
 
     env_results = []
     for est in cv_estimators:
@@ -85,7 +84,7 @@ def run_cv(train_path=train_path, k=10, rand_seed=0, test_path=test_path):
     return cv_scores, test_scores, env_scores
 
 
-def train_save_model(train_path=train_path, output_path=output_path, filename='mfcc_logistic_regression.sav', rand_seed=0):
+def train_save_model(train_path=TRAIN_PATH, output_path=OUTPUT_PATH, filename='mfcc_logistic_regression.sav', rand_seed=0):
     
     X, y, g = load_frame_train_data(data_path=train_path, target_label='class_label')
 
