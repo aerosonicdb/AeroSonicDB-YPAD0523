@@ -33,6 +33,7 @@ def save_env_mfccs(env_n,
                    class_path=CLASS_PATH,
                    output_path=OUTPUT_PATH,
                    env_audio_path=ENV_AUDIO_PATH):
+
     audio_path = os.path.join(env_audio_path, f'{str(env_n)}_AUDIO.wav')
     json_path = os.path.join(output_path, f'{str(env_n)}_ENV_{n_mfcc}_mfcc_{duration}.json')
     class_map = pd.read_csv(class_path)
@@ -68,9 +69,16 @@ def save_env_mfccs(env_n,
 
                 class_label = class_map[n_str].iloc[s]
 
-                if len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:
+                # logic to skip "edge" cases
+                if class_label == 'ignore':
+                    pass
+
+                elif len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:
                     data['mfcc'].append(mfcc.tolist())
                     data['class_label'].append(str(class_label))
+
+                else:
+                    print(f'MFCC vector to segment mismatch at pos {s}')
 
         # save MFCCs to json file
         with open(json_path, "w") as fp:

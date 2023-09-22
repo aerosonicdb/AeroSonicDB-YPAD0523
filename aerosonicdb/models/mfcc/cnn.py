@@ -6,11 +6,8 @@ from scikeras.wrappers import KerasClassifier
 from sklearn.model_selection import cross_validate
 from sklearn.metrics import average_precision_score
 from aerosonicdb.utils import get_project_root
-from aerosonicdb.utils import fetch_k_fold_cv_indicies
-from aerosonicdb.utils import load_train_data
-from aerosonicdb.utils import load_test_data
-from aerosonicdb.utils import load_env_test_data
-from aerosonicdb.utils import train_val_split
+from aerosonicdb.utils import fetch_k_fold_cv_indicies, train_val_split
+from aerosonicdb.utils import load_train_data, load_test_data, load_env_test_data
 import absl.logging
 absl.logging.set_verbosity(absl.logging.ERROR)
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.FATAL)
@@ -69,39 +66,61 @@ def init_model(x):
     return model
 
 
-def run_cv(train_path=TRAIN_PATH, test_path=TEST_PATH, epochs=1, batch_size=216, rand_seed=0, verbose=0, k=10):
+def run_cv(train_path=TRAIN_PATH,
+           test_path=TEST_PATH,
+           output_path=OUTPUT_PATH,
+           epochs=1,
+           batch_size=216,
+           rand_seed=0,
+           verbose=0,
+           k=5,
+           save_models=True):
+
     keras.utils.set_random_seed(rand_seed)
+
     X, y, g = load_train_data(data_path=train_path, target_label='class_label')
     build = init_model(X)
-    model = KerasClassifier(model=build, epochs=epochs, batch_size=batch_size, random_state=rand_seed, verbose=verbose)
+    model = KerasClassifier(model=build, epochs=epochs, batch_size=batch_size,
+                            random_state=rand_seed, verbose=verbose, class_weight='balanced')
+
     print(f'Running {k}-fold cross-validation...')
+
     results = cross_validate(model, X, y,
                              cv=fetch_k_fold_cv_indicies(X, y, g, k=k),
                              scoring='average_precision',
                              return_estimator=True)
 
-    # print(sorted(results.keys()))
     print('CV results:', results['test_score'], sep='\n')
 
     cv_mean = results['test_score'].mean() * 100
     cv_st_dev = results['test_score'].std() * 100
 
-    print(f'Average Precision Score for 10-fold CV: %.2f%% (%.2f%%)' % (cv_mean, cv_st_dev))
+    print(f'Average Precision Score for {k}-fold CV: %.2f%% (%.2f%%)' % (cv_mean, cv_st_dev))
 
     cv_scores = (cv_mean, cv_st_dev, results['test_score'])
 
     cv_estimators = results['estimator']
-    print(f'\nRunning {k}-model evaluation against Test set...')
-    X_test, y_test = load_test_data(data_path=test_path, target_label='class_label')
 
+    print(f'\nRunning {k}-model evaluation against Test set...')
+
+    X_test, y_test = load_test_data(data_path=test_path, target_label='class_label')
+    count = 1
     eval_results = []
+
     for est in cv_estimators:
         y_prob = est.predict_proba(X_test, batch_size=batch_size)[:, 1]
-        # print(y_test[:5])
-        # print(y_prob.shape)
-        # print(y_prob[:10])
         ap_score = average_precision_score(y_true=y_test, y_score=y_prob)
         eval_results.append(ap_score)
+        if save_models:
+
+            # save the model
+            model_path = os.path.join(output_path, f'cnn_{count}', 'model')
+
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+
+            est.model_.save(model_path)
+            count += 1
 
     print('Test evaluation results:', eval_results, sep='\n')
 
@@ -113,9 +132,10 @@ def run_cv(train_path=TRAIN_PATH, test_path=TEST_PATH, epochs=1, batch_size=216,
 
     print(f'\nRunning {k}-model evaluation against the Environment set...')
     # evaluate against the environment set
-    X_test, y_test = load_env_test_data(data_path=FEAT_PATH, json_base=ENV_FEAT_BASE, target_label='class_label')
-
+    X_test, y_test = load_env_test_data(data_path=FEAT_PATH, json_base=ENV_FEAT_BASE,
+                                        target_label='class_label')
     env_results = []
+
     for est in cv_estimators:
         y_prob = est.predict_proba(X_test, batch_size=batch_size)[:, 1]
         # print(y_test[:5])
@@ -162,4 +182,4 @@ def train_save_model(output_path=OUTPUT_PATH,
 
 
 if __name__ == '__main__':
-    run_cv()
+    run_cv(epochs=50)

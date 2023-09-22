@@ -4,6 +4,7 @@ import json
 import pandas as pd
 import numpy as np
 import librosa
+from librosa.util import fix_length
 from aerosonicdb.utils import get_project_root
 
 
@@ -79,24 +80,37 @@ def save_mfccs(dataset_path=DATASET_PATH,
             class_label = df['class'].iloc[row]
             subclass_label = df['subclass'].iloc[row]
             fold_label = df['fold'].iloc[row]
+            offset = df['offset'].iloc[row]
+            clip_duration = df['duration'].iloc[row]
 
-            signal, sr = librosa.load(audio_path)
+            signal, sr = librosa.load(audio_path, offset=offset, duration=clip_duration)
 
             if sr == sample_rate:
 
                 # data['filename'].append(base_filename)
 
-                clip_segments = len(signal) // SAMPLES_PER_SEGMENT
+                clip_segments = int(np.ceil(len(signal) / SAMPLES_PER_SEGMENT))
 
                 for s in range(clip_segments):
                     start = SAMPLES_PER_SEGMENT * s
                     end = start + SAMPLES_PER_SEGMENT
 
-                    mfcc = librosa.feature.mfcc(y=signal[start:end], 
-                                                sr=sample_rate, 
-                                                n_mfcc=n_mfcc, 
-                                                n_fft=n_fft, 
-                                                hop_length=hop_length)
+                    if len(signal[start:]) < SAMPLES_PER_SEGMENT:
+                        stub = signal[start:]
+                        padded = fix_length(stub, size=int(5*sr))
+                        mfcc = librosa.feature.mfcc(y=padded,
+                                                    sr=sample_rate,
+                                                    n_mfcc=n_mfcc,
+                                                    n_fft=n_fft,
+                                                    hop_length=hop_length)
+
+                    else:
+                        mfcc = librosa.feature.mfcc(y=signal[start:end],
+                                                    sr=sample_rate,
+                                                    n_mfcc=n_mfcc,
+                                                    n_fft=n_fft,
+                                                    hop_length=hop_length)
+
                     mfcc = mfcc.T
 
                     if len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:

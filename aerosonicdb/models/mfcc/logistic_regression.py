@@ -3,12 +3,12 @@ import pickle
 import numpy as np
 from sklearn.model_selection import cross_validate
 from sklearn.linear_model import LogisticRegression
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import average_precision_score
-from aerosonicdb.utils import get_project_root
-from aerosonicdb.utils import fetch_k_fold_cv_indicies
-from aerosonicdb.utils import load_frame_train_data
-from aerosonicdb.utils import load_frame_test_data
-from aerosonicdb.utils import load_frame_env_test_data
+from aerosonicdb.utils import get_project_root, fetch_k_fold_cv_indicies
+from aerosonicdb.utils import load_flatten_train_data, load_flatten_test_data, load_flatten_env_test_data
+# from aerosonicdb.utils import load_frame_train_data, load_frame_test_data, load_frame_env_test_data
+
 
 ROOT_PATH = get_project_root()
 FEAT_PATH = os.path.join(ROOT_PATH, 'data/processed')
@@ -21,10 +21,16 @@ if not os.path.exists(OUTPUT_PATH):
     os.makedirs(OUTPUT_PATH)
 
 
-def run_cv(train_path=TRAIN_PATH, k=10, rand_seed=0, test_path=TEST_PATH):
-    X, y, g = load_frame_train_data(data_path=train_path, target_label='class_label')
+def run_cv(train_path=TRAIN_PATH,
+           output_path=OUTPUT_PATH,
+           k=5,
+           rand_seed=0,
+           test_path=TEST_PATH,
+           save_models=True):
 
-    model = LogisticRegression(random_state=rand_seed, max_iter=400)
+    X, y, g = load_flatten_train_data(data_path=train_path, target_label='class_label')
+
+    model = LogisticRegression(random_state=rand_seed, solver='liblinear')
     print(f'Running {k}-fold cross-validation...')
     results = cross_validate(model, X, y,
                              cv=fetch_k_fold_cv_indicies(X, y, g, k=k),
@@ -37,13 +43,16 @@ def run_cv(train_path=TRAIN_PATH, k=10, rand_seed=0, test_path=TEST_PATH):
     cv_mean = results['test_score'].mean() * 100
     cv_st_dev = results['test_score'].std() * 100
 
-    print(f'Average Precision Score for 10-fold CV: %.2f%% (%.2f%%)' % (cv_mean, cv_st_dev))
+    print(f'Average Precision Score for {k}-fold CV: %.2f%% (%.2f%%)' % (cv_mean, cv_st_dev))
 
     cv_scores = (cv_mean, cv_st_dev, results['test_score'])
-
     cv_estimators = results['estimator']
+
     print(f'\nRunning {k}-model evaluation against Test set...')
-    X_test, y_test = load_frame_test_data(data_path=test_path, target_label='class_label')
+
+    X_test, y_test = load_flatten_test_data(data_path=test_path, target_label='class_label')
+    count = 1
+
     eval_results = []
     for est in cv_estimators:
         y_prob = est.predict_proba(X_test)[:, 1]
@@ -51,6 +60,20 @@ def run_cv(train_path=TRAIN_PATH, k=10, rand_seed=0, test_path=TEST_PATH):
         # print(y_prob[:5])
         ap_score = average_precision_score(y_true=y_test, y_score=y_prob)
         eval_results.append(ap_score)
+
+        if save_models:
+
+            # save the model
+            filename = f'lr_{count}.sav'
+            model_path = output_path
+            filepath = os.path.join(model_path, filename)
+
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+
+            pickle.dump(est, open(filepath, 'wb'))
+
+            count += 1
 
     print('Test evaluation results:', eval_results, sep='\n')
 
@@ -63,7 +86,7 @@ def run_cv(train_path=TRAIN_PATH, k=10, rand_seed=0, test_path=TEST_PATH):
     print(f'\nRunning {k}-model evaluation against the Environment set...')
 
     # evaluate against the environment set
-    X_test, y_test = load_frame_env_test_data(data_path=FEAT_PATH, json_base=ENV_FEAT_BASE, target_label='class_label')
+    X_test, y_test = load_flatten_env_test_data(data_path=FEAT_PATH, json_base=ENV_FEAT_BASE, target_label='class_label')
 
     env_results = []
     for est in cv_estimators:
@@ -84,11 +107,11 @@ def run_cv(train_path=TRAIN_PATH, k=10, rand_seed=0, test_path=TEST_PATH):
     return cv_scores, test_scores, env_scores
 
 
-def train_save_model(train_path=TRAIN_PATH, output_path=OUTPUT_PATH, filename='mfcc_logistic_regression.sav', rand_seed=0):
+def train_save_model(train_path=TRAIN_PATH, output_path=OUTPUT_PATH, filename='mfcc_lr.sav', rand_seed=0):
     
-    X, y, g = load_frame_train_data(data_path=train_path, target_label='class_label')
+    X, y, g = load_flatten_train_data(data_path=train_path, target_label='class_label')
 
-    model = LogisticRegression(random_state=rand_seed, max_iter=400)
+    model = LogisticRegression(random_state=rand_seed, solver='liblinear')
     
     # Fit the model on training set
     model.fit(X, y)
@@ -98,6 +121,28 @@ def train_save_model(train_path=TRAIN_PATH, output_path=OUTPUT_PATH, filename='m
     pickle.dump(model, open(filename, 'wb'))
     
     print(f'Model saved to: {filename}')
+
+
+def run_feature_permutation(train_path=TRAIN_PATH, test_path=TEST_PATH, rand_seed=0):
+
+    X, y, g = load_flatten_train_data(data_path=train_path, target_label='class_label')
+
+    X_test, y_test = load_flatten_test_data(data_path=test_path, target_label='class_label')
+
+    model = LogisticRegression(random_state=rand_seed, solver='liblinear')
+
+    model.fit(X, y)
+
+    score = model.score(X_test, y_test)
+    print(score, 'Score')
+
+    r = permutation_importance(model, X_test, y_test, n_repeats=30, random_state=0)
+    print(r.importances_mean)
+    for i in r.importances_mean.argsort()[::-1]:
+        if r.importances_mean[i] - 2 * r.importances_std[i] > 0:
+            print(f"{i:<8}"
+                  f"{r.importances_mean[i]:.3f}"
+                  f" +/- {r.importances_std[i]:.3f}")
 
 
 if __name__ == '__main__':

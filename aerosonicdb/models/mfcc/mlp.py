@@ -3,14 +3,12 @@ import numpy as np
 import tensorflow.keras as keras
 import tensorflow as tf
 from scikeras.wrappers import KerasClassifier
+from sklearn.utils import class_weight
 from sklearn.model_selection import cross_validate
 from sklearn.metrics import average_precision_score
 from aerosonicdb.utils import get_project_root
-from aerosonicdb.utils import fetch_k_fold_cv_indicies
-from aerosonicdb.utils import load_train_data
-from aerosonicdb.utils import load_test_data
-from aerosonicdb.utils import train_val_split
-from aerosonicdb.utils import load_env_test_data
+from aerosonicdb.utils import load_train_data, load_test_data, load_env_test_data
+from aerosonicdb.utils import fetch_k_fold_cv_indicies, train_val_split, plot_history
 import absl.logging
 absl.logging.set_verbosity(absl.logging.ERROR)
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.FATAL)
@@ -45,45 +43,68 @@ def build_model(x):
     # compile model
     optimiser = keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=optimiser,
-                  loss='BinaryCrossentropy',
+                  loss=tf.keras.losses.BinaryCrossentropy(),
                   metrics=[tf.keras.metrics.AUC(curve='PR', name='PR-AUC')])
 
     return model
 
 
-def run_cv(train_path=TRAIN_PATH, test_path=TEST_PATH, epochs=1, batch_size=216, rand_seed=0, verbose=0, k=10):
+def run_cv(train_path=TRAIN_PATH,
+           test_path=TEST_PATH,
+           output_path=OUTPUT_PATH,
+           epochs=1,
+           batch_size=216,
+           rand_seed=0,
+           verbose=0,
+           k=5,
+           save_models=True):
+
     keras.utils.set_random_seed(rand_seed)
+
     X, y, g = load_train_data(data_path=train_path, target_label='class_label')
     build = build_model(X)
-    model = KerasClassifier(model=build, epochs=epochs, batch_size=batch_size, random_state=rand_seed, verbose=verbose)
+
+    model = KerasClassifier(model=build, epochs=epochs, batch_size=batch_size,
+                            random_state=rand_seed, verbose=verbose, class_weight='balanced')
+
     print(f'Running {k}-fold cross-validation...')
+
     results = cross_validate(model, X, y,
                              cv=fetch_k_fold_cv_indicies(X, y, g, k=k),
                              scoring='average_precision',
                              return_estimator=True)
 
-    # print(sorted(results.keys()))
     print('CV results:', results['test_score'], sep='\n')
 
     cv_mean = results['test_score'].mean() * 100
     cv_st_dev = results['test_score'].std() * 100
 
-    print(f'Average Precision Score for 10-fold CV: %.2f%% (%.2f%%)' % (cv_mean, cv_st_dev))
+    print(f'Average Precision Score for 5-fold CV: %.2f%% (%.2f%%)' % (cv_mean, cv_st_dev))
 
     cv_scores = (cv_mean, cv_st_dev, results['test_score'])
-
     cv_estimators = results['estimator']
+
     print(f'\nRunning {k}-model evaluation against Test set...')
+
     X_test, y_test = load_test_data(data_path=test_path, target_label='class_label')
+    count = 1
 
     eval_results = []
     for est in cv_estimators:
+
         y_prob = est.predict_proba(X_test, batch_size=batch_size)[:, 1]
-        # print(y_test[:5])
-        # print(y_prob.shape)
-        # print(y_prob[:10])
         ap_score = average_precision_score(y_true=y_test, y_score=y_prob)
         eval_results.append(ap_score)
+
+        if save_models:
+            # save the model
+            model_path = os.path.join(output_path, f'mlp_{count}', 'model')
+
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+
+            est.model_.save(model_path)
+            count += 1
 
     print('Test evaluation results:', eval_results, sep='\n')
 
@@ -100,9 +121,6 @@ def run_cv(train_path=TRAIN_PATH, test_path=TEST_PATH, epochs=1, batch_size=216,
     env_results = []
     for est in cv_estimators:
         y_prob = est.predict_proba(X_test, batch_size=batch_size)[:, 1]
-        # print(y_test[:5])
-        # print(y_prob.shape)
-        # print(y_prob[:10])
         ap_score = average_precision_score(y_true=y_test, y_score=y_prob)
         env_results.append(ap_score)
 
@@ -118,7 +136,7 @@ def run_cv(train_path=TRAIN_PATH, test_path=TEST_PATH, epochs=1, batch_size=216,
 
 def train_save_model(output_path=OUTPUT_PATH,
                      train_path=TRAIN_PATH,
-                     filename='mfcc_mlp',
+                     filename='mfcc_mlp_n',
                      epochs=1,
                      batch_size=216,
                      verbose=0,
@@ -130,18 +148,57 @@ def train_save_model(output_path=OUTPUT_PATH,
 
     X_train, y_train, X_val, y_val = train_val_split(X, y, g)
 
+    # X_train = np.concatenate((X_train, X_val))
+    # y_train = np.concatenate((y_train, y_val))
+
     model = build_model(X)
     model.summary()
 
+    class_weights = class_weight.compute_class_weight(class_weight='balanced', classes=np.unique(y_train), y=y_train)
+
+    print(class_weights[:5])
+
+    class_weight_dict = dict(enumerate(class_weights))
+
+    print(class_weight_dict)
+
     # train model
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), batch_size=batch_size, epochs=epochs, verbose=verbose)
+    model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, verbose=verbose, class_weight=class_weight_dict)
 
     # save the model
     model_path = os.path.join(output_path, filename, 'model')
+
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
+
     model.save(model_path)
     
     print(f'Model saved to {model_path}.\n')
 
 
+def train_plot_model(train_path=TRAIN_PATH,
+                     epochs=50,
+                     batch_size=216,
+                     verbose=1,
+                     rand_seed=0):
+
+    keras.utils.set_random_seed(rand_seed)
+
+    X, y, g = load_train_data(data_path=train_path, target_label='class_label')
+
+    X_train, y_train, X_val, y_val = train_val_split(X, y, g)
+
+    model = build_model(X)
+    model.summary()
+
+    # train model
+    history = model.fit(X_train, y_train, validation_data=(X_val, y_val), batch_size=batch_size, epochs=epochs, verbose=verbose)
+
+    # save the model
+    plot_history(history)
+
+
 if __name__ == '__main__':
-    run_cv()
+    run_cv(epochs=50)
+    # train_plot_model()
+    # train_save_model(epochs=50)

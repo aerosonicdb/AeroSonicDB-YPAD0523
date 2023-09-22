@@ -9,15 +9,15 @@ download_path = os.path.join(root_path, 'data/raw')
 
 def download(target_path=download_path):
     # Target URLs for the dataset files on Zenodo
-    audio_zip = 'https://zenodo.org/record/8004108/files/audio.zip'
-    env_audio_zip = 'https://zenodo.org/record/8004108/files/env_audio.zip'
-    sample_meta_csv = 'https://zenodo.org/record/8004108/files/sample_meta.csv'
-    aircraft_meta_csv = 'https://zenodo.org/record/8004108/files/aircraft_meta.csv'
-    aircraft_meta_json = 'https://zenodo.org/record/8004108/files/aircraft_meta.json'
-    locations_json = 'https://zenodo.org/record/8004108/files/locations.json'
-    env_map_csv = 'https://zenodo.org/record/8004108/files/environment_class_mappings.csv'
-    license_txt = 'https://zenodo.org/record/8004108/files/LICENSE.txt'
-    readme_md = 'https://zenodo.org/record/8004108/files/README.md'
+    audio_zip = 'https://zenodo.org/record/8368882/files/audio.zip'
+    env_audio_zip = 'https://zenodo.org/record/8368882/files/env_audio.zip'
+    sample_meta_csv = 'https://zenodo.org/record/8368882/files/sample_meta.csv'
+    aircraft_meta_csv = 'https://zenodo.org/record/8368882/files/aircraft_meta.csv'
+    aircraft_meta_json = 'https://zenodo.org/record/8368882/files/aircraft_meta.json'
+    locations_json = 'https://zenodo.org/record/8368882/files/locations.json'
+    env_map_csv = 'https://zenodo.org/record/8368882/files/environment_class_mappings.csv'
+    license_txt = 'https://zenodo.org/record/8368882/files/LICENSE.txt'
+    readme_md = 'https://zenodo.org/record/8368882/files/README.md'
 
     # Specify and create the target directory for the dataset
 
