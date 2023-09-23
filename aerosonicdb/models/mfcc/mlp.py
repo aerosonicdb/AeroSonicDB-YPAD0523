@@ -2,10 +2,11 @@ import os
 import numpy as np
 import tensorflow.keras as keras
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from scikeras.wrappers import KerasClassifier
 from sklearn.utils import class_weight
 from sklearn.model_selection import cross_validate
-from sklearn.metrics import average_precision_score
+from sklearn.metrics import average_precision_score, PrecisionRecallDisplay
 from aerosonicdb.utils import get_project_root
 from aerosonicdb.utils import load_train_data, load_test_data, load_env_test_data
 from aerosonicdb.utils import fetch_k_fold_cv_indicies, train_val_split, plot_history
@@ -87,6 +88,10 @@ def run_cv(train_path=TRAIN_PATH,
     print(f'\nRunning {k}-model evaluation against Test set...')
 
     X_test, y_test = load_test_data(data_path=test_path, target_label='class_label')
+
+    # setup the plot for PR curve
+    fig, ax = plt.subplots(figsize=(7, 7))
+
     count = 1
 
     eval_results = []
@@ -95,6 +100,8 @@ def run_cv(train_path=TRAIN_PATH,
         y_prob = est.predict_proba(X_test, batch_size=batch_size)[:, 1]
         ap_score = average_precision_score(y_true=y_test, y_score=y_prob)
         eval_results.append(ap_score)
+
+        PrecisionRecallDisplay.from_predictions(y_test, y_prob, ax=ax, name=f'MLP {count}')
 
         if save_models:
             # save the model
@@ -105,6 +112,13 @@ def run_cv(train_path=TRAIN_PATH,
 
             est.model_.save(model_path)
             count += 1
+
+    ax.legend(loc='upper right')
+    ax.set_title('Precision-Recall (PR) curves: Test Evaluation')
+    ax.grid(linestyle="--")
+
+    plt.legend()
+    plt.show()
 
     print('Test evaluation results:', eval_results, sep='\n')
 
@@ -118,11 +132,26 @@ def run_cv(train_path=TRAIN_PATH,
     # evaluate against the environment set
     X_test, y_test = load_env_test_data(data_path=FEAT_PATH, json_base=ENV_FEAT_BASE, target_label='class_label')
 
+    # setup the plot for PR curve
+    fig, ax = plt.subplots(figsize=(7, 7))
+
+    count = 1
     env_results = []
     for est in cv_estimators:
         y_prob = est.predict_proba(X_test, batch_size=batch_size)[:, 1]
         ap_score = average_precision_score(y_true=y_test, y_score=y_prob)
         env_results.append(ap_score)
+
+        PrecisionRecallDisplay.from_predictions(y_test, y_prob, ax=ax, name=f'MLP {count}')
+
+        count += 1
+
+    ax.legend(loc='upper right')
+    ax.set_title('Precision-Recall (PR) curves: Environmental Evaluation')
+    ax.grid(linestyle="--")
+
+    plt.legend()
+    plt.show()
 
     print('Environment evaluation results:', env_results, sep='\n')
 
@@ -199,6 +228,6 @@ def train_plot_model(train_path=TRAIN_PATH,
 
 
 if __name__ == '__main__':
-    run_cv(epochs=50)
+    run_cv(epochs=5, save_models=False)
     # train_plot_model()
     # train_save_model(epochs=50)

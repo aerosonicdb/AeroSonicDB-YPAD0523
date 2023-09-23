@@ -1,13 +1,15 @@
 import os
 import pickle
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.model_selection import cross_validate
 from sklearn.linear_model import LogisticRegression
 from sklearn.inspection import permutation_importance
-from sklearn.metrics import average_precision_score
+from sklearn.metrics import average_precision_score, PrecisionRecallDisplay
 from aerosonicdb.utils import get_project_root, fetch_k_fold_cv_indicies
 from aerosonicdb.utils import load_flatten_train_data, load_flatten_test_data, load_flatten_env_test_data
-# from aerosonicdb.utils import load_frame_train_data, load_frame_test_data, load_frame_env_test_data
+
+
 
 
 ROOT_PATH = get_project_root()
@@ -51,15 +53,20 @@ def run_cv(train_path=TRAIN_PATH,
     print(f'\nRunning {k}-model evaluation against Test set...')
 
     X_test, y_test = load_flatten_test_data(data_path=test_path, target_label='class_label')
+
+    # setup the plot for PR curve
+    fig, ax = plt.subplots(figsize=(7, 7))
+
     count = 1
 
     eval_results = []
     for est in cv_estimators:
+
         y_prob = est.predict_proba(X_test)[:, 1]
-        # print(y_test[:5])
-        # print(y_prob[:5])
         ap_score = average_precision_score(y_true=y_test, y_score=y_prob)
         eval_results.append(ap_score)
+
+        PrecisionRecallDisplay.from_predictions(y_test, y_prob, ax=ax, name=f'Logistic Regression {count}')
 
         if save_models:
 
@@ -75,6 +82,13 @@ def run_cv(train_path=TRAIN_PATH,
 
             count += 1
 
+    ax.legend(loc='upper right')
+    ax.set_title('Precision-Recall (PR) curves: Test Evaluation')
+    ax.grid(linestyle="--")
+
+    plt.legend()
+    plt.show()
+
     print('Test evaluation results:', eval_results, sep='\n')
 
     test_mean = np.mean(eval_results) * 100
@@ -88,14 +102,27 @@ def run_cv(train_path=TRAIN_PATH,
     # evaluate against the environment set
     X_test, y_test = load_flatten_env_test_data(data_path=FEAT_PATH, json_base=ENV_FEAT_BASE, target_label='class_label')
 
+    # setup the plot for PR curve
+    fig, ax = plt.subplots(figsize=(7, 7))
+
+    count = 1
+
     env_results = []
     for est in cv_estimators:
         y_prob = est.predict_proba(X_test)[:, 1]
-        # print(y_test[:5])
-        # print(y_prob.shape)
-        # print(y_prob[:10])
         ap_score = average_precision_score(y_true=y_test, y_score=y_prob)
         env_results.append(ap_score)
+
+        PrecisionRecallDisplay.from_predictions(y_test, y_prob, ax=ax, name=f'Logistic Regression {count}')
+
+        count += 1
+
+    ax.legend(loc='upper right')
+    ax.set_title('Precision-Recall (PR) curves: Environmental Evaluation')
+    ax.grid(linestyle="--")
+
+    plt.legend()
+    plt.show()
 
     print('Environment evaluation results:', env_results, sep='\n')
 
