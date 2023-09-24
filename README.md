@@ -1,6 +1,6 @@
 # AeroSonicDB-YPAD0523
 Download and get started with the AeroSonicDB-YPAD0523 dataset of low-altitude aircraft sounds.
-https://zenodo.org/record/8368882
+https://zenodo.org/record/8371595
 
 ## Requirements
 - Python 3
