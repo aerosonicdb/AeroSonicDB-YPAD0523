@@ -107,7 +107,7 @@ def run_cv(train_path=TRAIN_PATH,
     X_test, y_test = load_test_data(data_path=test_path, target_label='class_label')
 
     # setup the plot for PR curve
-    fig, ax = plt.subplots(figsize=(7, 7))
+    fig, ax = plt.subplots(figsize=(5.5, 5.5))
 
     count = 1
 
@@ -152,7 +152,7 @@ def run_cv(train_path=TRAIN_PATH,
                                         target_label='class_label')
 
     # setup the plot for PR curve
-    fig, ax = plt.subplots(figsize=(7, 7))
+    fig, ax = plt.subplots(figsize=(5.5, 5.5))
 
     count = 1
 

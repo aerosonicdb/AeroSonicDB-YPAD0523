@@ -55,7 +55,7 @@ def run_cv(train_path=TRAIN_PATH,
     X_test, y_test = load_flatten_test_data(data_path=test_path, target_label='class_label')
 
     # setup the plot for PR curve
-    fig, ax = plt.subplots(figsize=(7, 7))
+    fig, ax = plt.subplots(figsize=(5.5, 5.5))
 
     count = 1
 
@@ -82,7 +82,7 @@ def run_cv(train_path=TRAIN_PATH,
 
             count += 1
 
-    ax.legend(loc='upper right')
+    # ax.legend(loc='upper right')
     ax.set_title('Precision-Recall (PR) curves: Test Evaluation')
     ax.grid(linestyle="--")
 
@@ -103,7 +103,7 @@ def run_cv(train_path=TRAIN_PATH,
     X_test, y_test = load_flatten_env_test_data(data_path=FEAT_PATH, json_base=ENV_FEAT_BASE, target_label='class_label')
 
     # setup the plot for PR curve
-    fig, ax = plt.subplots(figsize=(7, 7))
+    fig, ax = plt.subplots(figsize=(5.5, 5.5))
 
     count = 1
 
