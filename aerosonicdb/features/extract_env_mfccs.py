@@ -32,7 +32,8 @@ def save_env_mfccs(env_n,
                    hop_length=HOP_LENGTH,
                    class_path=CLASS_PATH,
                    output_path=OUTPUT_PATH,
-                   env_audio_path=ENV_AUDIO_PATH):
+                   env_audio_path=ENV_AUDIO_PATH,
+                   ignore=True):
 
     audio_path = os.path.join(env_audio_path, f'{str(env_n)}_AUDIO.wav')
     json_path = os.path.join(output_path, f'{str(env_n)}_ENV_{n_mfcc}_mfcc_{duration}.json')
@@ -68,31 +69,46 @@ def save_env_mfccs(env_n,
                 n_str = str(env_n - 1)
 
                 class_label = class_map[n_str].iloc[s]
+                
+                if ignore:
+                    
+                    # logic to skip "edge" cases
+                    if class_label == 'ignore':
+                        pass
 
-                # logic to skip "edge" cases
-                if class_label == 'ignore':
-                    pass
+                    elif len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:
+                        data['mfcc'].append(mfcc.tolist())
+                        data['class_label'].append(str(class_label))
 
-                elif len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:
-                    data['mfcc'].append(mfcc.tolist())
-                    data['class_label'].append(str(class_label))
-
+                    else:
+                        print(f'MFCC vector to segment mismatch at pos {s}')
+                        
                 else:
-                    print(f'MFCC vector to segment mismatch at pos {s}')
+                    
+                    if len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:
+                        if class_label == 'ignore':
+                            class_label = '0'
+                            
+                        data['mfcc'].append(mfcc.tolist())
+                        data['class_label'].append(str(class_label))
+                    else:
+                        print(f'MFCC vector to segment mismatch at pos {s}')
 
         # save MFCCs to json file
         with open(json_path, "w") as fp:
             json.dump(data, fp, indent=4)
 
-    else:
-        print(f'MFCCs already extracted. See {output_path}')
 
 
-def extract_all_env_feats():
+
+def extract_all_env_feats(output_path=OUTPUT_PATH, ignore=True):
+    if not os.path.isdir(output_path):
+        os.makedirs(output_path)
     for i in range(0, 6):
         n = i + 1
-        save_env_mfccs(env_n=n)
-
+        save_env_mfccs(env_n=n, output_path=output_path, ignore=ignore)
+    
+    print(f'MFCCs extracted.')
 
 if __name__ == "__main__":
     extract_all_env_feats()

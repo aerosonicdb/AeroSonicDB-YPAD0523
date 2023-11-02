@@ -54,7 +54,7 @@ def download(target_path=download_path):
         os.remove(os.path.join(target_path, 'env_audio.zip'))
 
     else:
-        print(f'Dataset already downloaded - see {target_path}')
+        print(f'Dataset downloaded - see "data/raw" directory')
 
 
 if __name__ == '__main__':

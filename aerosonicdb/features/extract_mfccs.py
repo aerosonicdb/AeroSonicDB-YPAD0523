@@ -123,7 +123,7 @@ def save_mfccs(dataset_path=DATASET_PATH,
         with open(json_path, "w") as fp:
             json.dump(data, fp, indent=4)
     else:
-        print(f'{set_str} features already extracted.')
+        print(f'{set_str} MFCCs extracted.')
         
 
 if __name__ == "__main__":

@@ -107,7 +107,7 @@ def run_cv(train_path=TRAIN_PATH,
     X_test, y_test = load_test_data(data_path=test_path, target_label='class_label')
 
     # setup the plot for PR curve
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
+    fig, ax = plt.subplots(figsize=(5, 4))
 
     count = 1
 
@@ -132,10 +132,16 @@ def run_cv(train_path=TRAIN_PATH,
         count += 1
 
     ax.legend(loc='upper right')
-    ax.set_title('Precision-Recall (PR) curves: Test Evaluation')
+    ax.set_title('CNN PR curves: TEST')
     ax.grid(linestyle="--")
 
     plt.legend()
+    
+    # check for/create output directory for figures
+    if not os.path.isdir('../figures'):
+        os.mkdir('../figures')
+    
+    plt.savefig(f'../figures/CNN_Test_PR_curves.png', dpi=300)
     plt.show()
 
     print('Test evaluation results:', eval_results, sep='\n')
@@ -152,7 +158,7 @@ def run_cv(train_path=TRAIN_PATH,
                                         target_label='class_label')
 
     # setup the plot for PR curve
-    fig, ax = plt.subplots(figsize=(5.5, 5.5))
+    fig, ax = plt.subplots(figsize=(5, 4))
 
     count = 1
 
@@ -167,10 +173,11 @@ def run_cv(train_path=TRAIN_PATH,
         count += 1
 
     ax.legend(loc='upper right')
-    ax.set_title('Precision-Recall (PR) curves: Environmental Evaluation')
+    ax.set_title('CNN PR curves: ENV')
     ax.grid(linestyle="--")
 
     plt.legend()
+    plt.savefig(f'../figures/CNN_Env_PR_curves.png', dpi=300)
     plt.show()
 
     print('Environment evaluation results:', env_results, sep='\n')
