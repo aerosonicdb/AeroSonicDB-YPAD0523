@@ -142,7 +142,7 @@ def run_cv(
 
         if save_models:
             # save the model
-            model_path = os.path.join(output_path, f"cnn_{count}", "model", ".keras")
+            model_path = os.path.join(output_path, f"cnn_{count}", "model")
 
             if not os.path.exists(model_path):
                 os.makedirs(model_path)
