@@ -1,18 +1,20 @@
 import os
 import pickle
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import cross_validate
-from sklearn.linear_model import LogisticRegression
-from sklearn.inspection import permutation_importance
-from sklearn.metrics import average_precision_score, PrecisionRecallDisplay
-from aerosonicdb.utils import get_project_root, fetch_k_fold_cv_indicies
-from aerosonicdb.utils import (
-    load_flatten_train_data,
-    load_flatten_test_data,
-    load_flatten_env_test_data,
-)
 
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.inspection import permutation_importance
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import PrecisionRecallDisplay, average_precision_score
+from sklearn.model_selection import cross_validate
+
+from aerosonicdb.utils import (
+    fetch_k_fold_cv_indicies,
+    get_project_root,
+    load_flatten_env_test_data,
+    load_flatten_test_data,
+    load_flatten_train_data,
+)
 
 ROOT_PATH = get_project_root()
 FEAT_PATH = os.path.join(ROOT_PATH, "data/processed")

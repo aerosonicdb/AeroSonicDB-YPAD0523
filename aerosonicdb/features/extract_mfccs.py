@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 """Feature extraction logic and entrypoint. Calculates MFCC features for all of the audio files and saves it to local file for later use."""
-import os
-import math
 import json
+import math
+import os
 
 import click
-import pandas as pd
-import numpy as np
 import librosa
+import numpy as np
+import pandas as pd
 from librosa.util import fix_length
 from tqdm.auto import tqdm
 
 from aerosonicdb.utils import get_project_root
-
 
 ROOT_PATH = get_project_root()
 

@@ -1,16 +1,24 @@
 import os
-import numpy as np
-import tensorflow.keras as keras
-import tensorflow as tf
-import matplotlib.pyplot as plt
-from scikeras.wrappers import KerasClassifier
-from sklearn.utils import class_weight
-from sklearn.model_selection import cross_validate
-from sklearn.metrics import average_precision_score, PrecisionRecallDisplay
-from aerosonicdb.utils import get_project_root
-from aerosonicdb.utils import load_train_data, load_test_data, load_env_test_data
-from aerosonicdb.utils import fetch_k_fold_cv_indicies, train_val_split, plot_history
+
 import absl.logging
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+import tensorflow.keras as keras
+from scikeras.wrappers import KerasClassifier
+from sklearn.metrics import PrecisionRecallDisplay, average_precision_score
+from sklearn.model_selection import cross_validate
+from sklearn.utils import class_weight
+
+from aerosonicdb.utils import (
+    fetch_k_fold_cv_indicies,
+    get_project_root,
+    load_env_test_data,
+    load_test_data,
+    load_train_data,
+    plot_history,
+    train_val_split,
+)
 
 absl.logging.set_verbosity(absl.logging.ERROR)
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.FATAL)

@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 """Feature extraction logic and entry point for environmental noise dataset."""
-import os
-import math
 import json
+import math
+import os
 
 import click
-import pandas as pd
 import librosa
+import pandas as pd
 from tqdm.auto import tqdm
 
 from aerosonicdb.utils import get_project_root
-
 
 ROOT_PATH = get_project_root()
 
@@ -56,7 +55,9 @@ def save_env_mfccs(
         return
 
     if os.path.exists(json_path) and not force:
-        print("JSON feature descriptor file already exist - not generating features.")
+        print(
+            f"JSON feature descriptor file already exists for environment #{env_n} - not generating features."
+        )
         return
 
     data = {"mfcc": [], "class_label": []}

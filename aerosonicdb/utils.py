@@ -1,11 +1,10 @@
-import os
 import json
+import os
 from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import StratifiedGroupKFold
-from sklearn.model_selection import GroupShuffleSplit
+import numpy as np
+from sklearn.model_selection import GroupShuffleSplit, StratifiedGroupKFold
 
 
 def get_project_root() -> Path:

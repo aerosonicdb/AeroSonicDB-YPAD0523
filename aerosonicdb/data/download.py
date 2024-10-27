@@ -8,7 +8,6 @@ import click
 
 from aerosonicdb.utils import get_project_root
 
-
 PROJECT_ROOT_PATH = get_project_root()
 TARGET_PATH = os.path.join(PROJECT_ROOT_PATH, "data/raw")
 BASE_URL = "https://zenodo.org/record/10215080/files"
