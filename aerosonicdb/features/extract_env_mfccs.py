@@ -1,9 +1,16 @@
+#!/usr/bin/env python
+"""Feature extraction logic and entry point for environmental noise dataset."""
 import os
 import math
 import json
+
+import click
 import pandas as pd
 import librosa
+from tqdm.auto import tqdm
+
 from aerosonicdb.utils import get_project_root
+
 
 ROOT_PATH = get_project_root()
 
@@ -35,6 +42,7 @@ def save_env_mfccs(
     output_path=OUTPUT_PATH,
     env_audio_path=ENV_AUDIO_PATH,
     ignore=True,
+    force=False,
 ):
 
     audio_path = os.path.join(env_audio_path, f"{str(env_n)}_AUDIO.wav")
@@ -47,7 +55,7 @@ def save_env_mfccs(
         print("Environment audio not found")
         return
 
-    if os.path.exists(json_path):
+    if os.path.exists(json_path) and not force:
         print("JSON feature descriptor file already exist - not generating features.")
         return
 
@@ -58,7 +66,7 @@ def save_env_mfccs(
     if sr == sample_rate:
         clip_segments = len(signal) // SAMPLES_PER_SEGMENT
 
-        for s in range(clip_segments):
+        for s in tqdm(range(clip_segments)):
             start = SAMPLES_PER_SEGMENT * s
             end = start + SAMPLES_PER_SEGMENT
 
@@ -98,15 +106,28 @@ def save_env_mfccs(
             json.dump(data, fp, indent=4)
 
 
-def extract_all_env_feats(output_path=OUTPUT_PATH, ignore=True):
+def extract_all_env_features(output_path=OUTPUT_PATH, ignore=True, force=False):
     if not os.path.isdir(output_path):
         os.makedirs(output_path)
-    for i in range(0, 6):
-        n = i + 1
-        save_env_mfccs(env_n=n, output_path=output_path, ignore=ignore)
+
+    for n in range(1, 7):
+        save_env_mfccs(env_n=n, output_path=output_path, ignore=ignore, force=force)
 
     print(f"MFCCs extracted.")
 
 
+@click.command()
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    help="Force re-generation of features even if features JSON descriptor file already exists.",
+)
+def extract_env_mfccs_entrypoint(force):
+    """Simple program that greets NAME for a total of COUNT times."""
+    click.echo("Extracting MFCC features for env set...")
+    extract_all_env_features(force=force)
+
+
 if __name__ == "__main__":
-    extract_all_env_feats()
+    extract_env_mfccs_entrypoint()

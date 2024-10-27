@@ -9,6 +9,7 @@ setup(
     url="https://github.com/aerosonicdb/AeroSonicDB-YPAD0523",
     packages=find_packages(),
     install_requires=[
+        "click",
         "librosa",
         "tensorflow",
         "scikit-learn",
@@ -17,5 +18,6 @@ setup(
         "pandas",
         "jupyter",
         "notebook",
+        "tqdm",
     ],
 )
