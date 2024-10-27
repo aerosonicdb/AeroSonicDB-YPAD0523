@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+"""Logistic Regression model classifier implementation and training entrypoint."""
 import os
 import pickle
 

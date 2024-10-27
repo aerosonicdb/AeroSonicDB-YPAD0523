@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+"""CNN model classifier implementation and training entrypoint."""
 import os
 
 import absl.logging
@@ -142,12 +144,12 @@ def run_cv(
 
         if save_models:
             # save the model
-            model_path = os.path.join(output_path, f"cnn_{count}", "model.keras")
+            model_path = os.path.join(output_path, f"cnn_{count}")
 
             if not os.path.exists(model_path):
                 os.makedirs(model_path)
 
-            est.model_.save(model_path)
+            est.model_.save(os.path.join(model_path, "model.keras"))
 
         count += 1
 
@@ -222,7 +224,7 @@ def run_cv(
 def train_save_model(
     output_path=OUTPUT_PATH,
     train_path=TRAIN_PATH,
-    filename="mfcc_cnn",
+    filename="mfcc_cnn.keras",
     epochs=1,
     batch_size=216,
     verbose=0,
@@ -249,7 +251,7 @@ def train_save_model(
     )
 
     # save the model
-    model_path = os.path.join(output_path, filename, "model.keras")
+    model_path = os.path.join(output_path, filename)
     model.save(model_path)
 
     print(f"Model saved to {model_path}.\n")
