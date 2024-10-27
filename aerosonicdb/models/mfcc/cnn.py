@@ -230,7 +230,6 @@ def train_save_model(
     verbose=0,
     rand_seed=0,
 ):
-
     keras.utils.set_random_seed(rand_seed)
 
     X, y, g = load_train_data(data_path=train_path, target_label="class_label")

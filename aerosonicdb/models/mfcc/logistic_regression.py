@@ -37,7 +37,6 @@ def run_cv(
     test_path=TEST_PATH,
     save_models=True,
 ):
-
     X, y, g = load_flatten_train_data(data_path=train_path, target_label="class_label")
 
     model = LogisticRegression(random_state=rand_seed, solver="liblinear")
@@ -173,7 +172,6 @@ def run_cv(
 def train_save_model(
     train_path=TRAIN_PATH, output_path=OUTPUT_PATH, filename="mfcc_lr.sav", rand_seed=0
 ):
-
     X, y, g = load_flatten_train_data(data_path=train_path, target_label="class_label")
 
     model = LogisticRegression(random_state=rand_seed, solver="liblinear")
@@ -189,7 +187,6 @@ def train_save_model(
 
 
 def run_feature_permutation(train_path=TRAIN_PATH, test_path=TEST_PATH, rand_seed=0):
-
     X, y, g = load_flatten_train_data(data_path=train_path, target_label="class_label")
 
     X_test, y_test = load_flatten_test_data(

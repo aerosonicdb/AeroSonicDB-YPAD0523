@@ -76,7 +76,6 @@ def run_cv(
     k=5,
     save_models=True,
 ):
-
     keras.utils.set_random_seed(rand_seed)
 
     X, y, g = load_train_data(data_path=train_path, target_label="class_label")
@@ -220,15 +219,11 @@ def train_save_model(
     verbose=0,
     rand_seed=0,
 ):
-
     keras.utils.set_random_seed(rand_seed)
 
     X, y, g = load_train_data(data_path=train_path, target_label="class_label")
 
     X_train, y_train, X_val, y_val = train_val_split(X, y, g)
-
-    # X_train = np.concatenate((X_train, X_val))
-    # y_train = np.concatenate((y_train, y_val))
 
     model = build_model(X)
     model.summary()
@@ -267,7 +262,6 @@ def train_save_model(
 def train_plot_model(
     train_path=TRAIN_PATH, epochs=50, batch_size=216, verbose=1, rand_seed=0
 ):
-
     keras.utils.set_random_seed(rand_seed)
 
     X, y, g = load_train_data(data_path=train_path, target_label="class_label")
