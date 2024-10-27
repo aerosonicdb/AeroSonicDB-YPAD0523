@@ -134,7 +134,7 @@ def run_cv(
 
         if save_models:
             # save the model
-            model_path = os.path.join(output_path, f"mlp_{count}", "model")
+            model_path = os.path.join(output_path, f"mlp_{count}", "model", ".keras")
 
             if not os.path.exists(model_path):
                 os.makedirs(model_path)
@@ -252,7 +252,7 @@ def train_save_model(
     )
 
     # save the model
-    model_path = os.path.join(output_path, filename, "model")
+    model_path = os.path.join(output_path, filename, "model", ".keras")
 
     if not os.path.exists(model_path):
         os.makedirs(model_path)

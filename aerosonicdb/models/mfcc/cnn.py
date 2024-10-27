@@ -4,10 +4,11 @@ import absl.logging
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-import tensorflow.keras as keras
 from scikeras.wrappers import KerasClassifier
 from sklearn.metrics import PrecisionRecallDisplay, average_precision_score
 from sklearn.model_selection import cross_validate
+from tensorflow import keras
+from tensorflow.keras import Sequential, layers
 
 from aerosonicdb.utils import (
     fetch_k_fold_cv_indicies,
@@ -31,35 +32,29 @@ OUTPUT_PATH = os.path.join(ROOT_PATH, "models")
 
 
 def build_model(input_shape):
-
-    model = keras.Sequential()
-
-    # 1st conv layer
-    model.add(
-        keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape)
+    """Define CNN model architecture."""
+    return Sequential(
+        [
+            # 1st conv layer
+            layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape),
+            layers.MaxPooling2D((3, 3), strides=(2, 2), padding="same"),
+            layers.Dropout(0.4),
+            # 2nd conv layer
+            layers.Conv2D(32, (3, 3), activation="relu"),
+            layers.MaxPooling2D((3, 3), strides=(2, 2), padding="same"),
+            layers.Dropout(0.4),
+            # 3rd conv layer
+            layers.Conv2D(32, (2, 2), activation="relu"),
+            layers.MaxPooling2D((2, 2), strides=(2, 2), padding="same"),
+            layers.Dropout(0.4),
+            # flatten and feed to dense layer
+            layers.Flatten(),
+            layers.Dense(32, activation="relu"),
+            layers.Dropout(0.4),
+            # output layer
+            layers.Dense(1, activation="sigmoid"),
+        ]
     )
-    model.add(keras.layers.MaxPooling2D((3, 3), strides=(2, 2), padding="same"))
-    model.add(keras.layers.Dropout(0.4))
-
-    # 2nd conv layer
-    model.add(keras.layers.Conv2D(32, (3, 3), activation="relu"))
-    model.add(keras.layers.MaxPooling2D((3, 3), strides=(2, 2), padding="same"))
-    model.add(keras.layers.Dropout(0.4))
-
-    # 3rd conv layer
-    model.add(keras.layers.Conv2D(32, (2, 2), activation="relu"))
-    model.add(keras.layers.MaxPooling2D((2, 2), strides=(2, 2), padding="same"))
-    model.add(keras.layers.Dropout(0.4))
-
-    # flatten and feed to dense layer
-    model.add(keras.layers.Flatten())
-    model.add(keras.layers.Dense(32, activation="relu"))
-    model.add(keras.layers.Dropout(0.4))
-
-    # output layer
-    model.add(keras.layers.Dense(1, activation="sigmoid"))
-
-    return model
 
 
 def init_model(x):
@@ -73,8 +68,6 @@ def init_model(x):
         loss=tf.keras.losses.BinaryCrossentropy(),
         metrics=[tf.keras.metrics.AUC(curve="PR", name="PR-AUC")],
     )
-
-    # model.summary()
 
     return model
 
@@ -90,7 +83,6 @@ def run_cv(
     k=5,
     save_models=True,
 ):
-
     keras.utils.set_random_seed(rand_seed)
 
     X, y, g = load_train_data(data_path=train_path, target_label="class_label")
@@ -149,9 +141,8 @@ def run_cv(
         )
 
         if save_models:
-
             # save the model
-            model_path = os.path.join(output_path, f"cnn_{count}", "model")
+            model_path = os.path.join(output_path, f"cnn_{count}", "model", ".keras")
 
             if not os.path.exists(model_path):
                 os.makedirs(model_path)
@@ -258,7 +249,7 @@ def train_save_model(
     )
 
     # save the model
-    model_path = os.path.join(output_path, filename, "model")
+    model_path = os.path.join(output_path, filename, "model", ".keras")
     model.save(model_path)
 
     print(f"Model saved to {model_path}.\n")
