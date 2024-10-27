@@ -95,39 +95,44 @@ def save_mfccs(
 
         signal, sr = librosa.load(audio_path, offset=offset, duration=clip_duration)
 
-        if sr == sample_rate:
-            clip_segments = int(np.ceil(len(signal) / SAMPLES_PER_SEGMENT))
+        if sr != sample_rate:
+            print(
+                f"file {base_filename} sample rate ({sr}) did not match the specified sample rate ({sample_rate}), skipping"
+            )
+            continue
 
-            for s in range(clip_segments):
-                start = SAMPLES_PER_SEGMENT * s
-                end = start + SAMPLES_PER_SEGMENT
+        clip_segments = int(np.ceil(len(signal) / SAMPLES_PER_SEGMENT))
 
-                if len(signal[start:]) < SAMPLES_PER_SEGMENT:
-                    stub = signal[start:]
-                    padded = fix_length(stub, size=int(5 * sr))
-                    mfcc = librosa.feature.mfcc(
-                        y=padded,
-                        sr=sample_rate,
-                        n_mfcc=n_mfcc,
-                        n_fft=n_fft,
-                        hop_length=hop_length,
-                    )
-                else:
-                    mfcc = librosa.feature.mfcc(
-                        y=signal[start:end],
-                        sr=sample_rate,
-                        n_mfcc=n_mfcc,
-                        n_fft=n_fft,
-                        hop_length=hop_length,
-                    )
+        for s in range(clip_segments):
+            start = SAMPLES_PER_SEGMENT * s
+            end = start + SAMPLES_PER_SEGMENT
 
-                mfcc = mfcc.T
+            if len(signal[start:]) < SAMPLES_PER_SEGMENT:
+                stub = signal[start:]
+                padded = fix_length(stub, size=int(5 * sr))
+                mfcc = librosa.feature.mfcc(
+                    y=padded,
+                    sr=sample_rate,
+                    n_mfcc=n_mfcc,
+                    n_fft=n_fft,
+                    hop_length=hop_length,
+                )
+            else:
+                mfcc = librosa.feature.mfcc(
+                    y=signal[start:end],
+                    sr=sample_rate,
+                    n_mfcc=n_mfcc,
+                    n_fft=n_fft,
+                    hop_length=hop_length,
+                )
 
-                if len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:
-                    data["mfcc"].append(mfcc.tolist())
-                    data["class_label"].append(str(class_label))
-                    data["subclass_label"].append(str(subclass_label))
-                    data["fold_label"].append(str(fold_label))
+            mfcc = mfcc.T
+
+            if len(mfcc) == EXPECTED_MFCC_VECTORS_PER_SEGMENT:
+                data["mfcc"].append(mfcc.tolist())
+                data["class_label"].append(str(class_label))
+                data["subclass_label"].append(str(subclass_label))
+                data["fold_label"].append(str(fold_label))
 
     # save MFCCs to json file
     with open(json_path, "w") as fp:
@@ -142,7 +147,7 @@ def save_mfccs(
     help="Force re-generation of features even if features JSON descriptor file already exists.",
 )
 def extract_mfccs_entrypoint(force):
-    """Simple program that greets NAME for a total of COUNT times."""
+    """Extract MFCC features for dataset."""
     click.echo("Extracting MFCC features for train set...")
     save_mfccs(
         dataset_path=DATASET_PATH,

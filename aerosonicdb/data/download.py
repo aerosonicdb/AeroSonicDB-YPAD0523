@@ -87,7 +87,7 @@ def download(base_url=BASE_URL, target_path=TARGET_PATH, force=False):
     help="Force re-generation of features even if features JSON descriptor file already exists.",
 )
 def download_entrypoint(force):
-    """Simple program that greets NAME for a total of COUNT times."""
+    """Download the dataset."""
     click.echo("Downloading dataset...")
     download(force=force)
 

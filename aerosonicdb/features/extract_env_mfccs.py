@@ -125,7 +125,7 @@ def extract_all_env_features(output_path=OUTPUT_PATH, ignore=True, force=False):
     help="Force re-generation of features even if features JSON descriptor file already exists.",
 )
 def extract_env_mfccs_entrypoint(force):
-    """Simple program that greets NAME for a total of COUNT times."""
+    """Extract MFCC features for env dataset."""
     click.echo("Extracting MFCC features for env set...")
     extract_all_env_features(force=force)
 
