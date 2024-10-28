@@ -16,15 +16,15 @@ BASE_URL = "https://zenodo.org/record/10215080/files"
 def download(base_url=BASE_URL, target_path=TARGET_PATH, force=False):
     # Target URLs for the dataset files on Zenodo
     audio_zip = f"{base_url}/audio.zip"
-    env_audio_zip = "{base_url}/env_audio.zip"
-    sample_meta_csv = "{base_url}/sample_meta.csv"
-    aircraft_meta_csv = "{base_url}/aircraft_meta.csv"
-    aircraft_meta_json = "{base_url}/aircraft_meta.json"
-    locations_json = "{base_url}/locations.json"
-    env_map_csv = "{base_url}/environment_class_mappings.csv"
-    raw_env_map = "{base_url}/environment_mappings_raw.csv"
-    license_txt = "{base_url}/LICENSE.txt"
-    readme_md = "{base_url}/README.md"
+    env_audio_zip = f"{base_url}/env_audio.zip"
+    sample_meta_csv = f"{base_url}/sample_meta.csv"
+    aircraft_meta_csv = f"{base_url}/aircraft_meta.csv"
+    aircraft_meta_json = f"{base_url}/aircraft_meta.json"
+    locations_json = f"{base_url}/locations.json"
+    env_map_csv = f"{base_url}/environment_class_mappings.csv"
+    raw_env_map = f"{base_url}/environment_mappings_raw.csv"
+    license_txt = f"{base_url}/LICENSE.txt"
+    readme_md = f"{base_url}/README.md"
 
     # Specify and create the target directory for the dataset
 

@@ -99,6 +99,6 @@ wandb/
 venv/
 
 # data files
-data/
-models/
-figures/
+/data/
+/models/
+/figures/
