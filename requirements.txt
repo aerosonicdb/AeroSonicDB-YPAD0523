@@ -1,5 +1,5 @@
 librosa
-tensorflow
+tensorflow==2.10.0
 scikeras
 scikit-learn
 jupyter
