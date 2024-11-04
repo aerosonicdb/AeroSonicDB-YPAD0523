@@ -1,9 +1,11 @@
 librosa
-tensorflow
-scikeras
+tensorflow>=2.16
+scikeras>=0.11.0
 scikit-learn
 jupyter
 notebook
 pandas
 numpy
 matplotlib
+click
+tqdm
