@@ -2,11 +2,13 @@
 """MLP model classifier implementation and training entrypoint."""
 import os
 
-import absl.logging
+import logging
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
+
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-import tensorflow.keras as keras
+import keras
 from scikeras.wrappers import KerasClassifier
 from sklearn.metrics import PrecisionRecallDisplay, average_precision_score
 from sklearn.model_selection import cross_validate
@@ -22,9 +24,6 @@ from aerosonicdb.utils import (
     train_val_split,
 )
 
-absl.logging.set_verbosity(absl.logging.ERROR)
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.FATAL)
-
 
 ROOT_PATH = get_project_root()
 FEAT_PATH = os.path.join(ROOT_PATH, "data/processed")
@@ -38,7 +37,8 @@ def build_model(x):
     model = keras.Sequential(
         [
             # input layer
-            keras.layers.Flatten(input_shape=(x.shape[1], x.shape[2])),
+            keras.layers.Input(shape=(x.shape[1], x.shape[2])),
+            keras.layers.Flatten(),
             # 1st dense layer
             keras.layers.Dense(
                 128, activation="relu", kernel_regularizer=keras.regularizers.l2(0.001)
@@ -55,11 +55,11 @@ def build_model(x):
     )
 
     # compile model
-    optimiser = keras.optimizers.Adam(learning_rate=0.001)
+    optimiser = keras.optimizers.Adam(learning_rate=0.0001)
     model.compile(
         optimizer=optimiser,
-        loss=tf.keras.losses.BinaryCrossentropy(),
-        metrics=[tf.keras.metrics.AUC(curve="PR", name="PR-AUC")],
+        loss=keras.losses.BinaryCrossentropy(),
+        metrics=[keras.metrics.AUC(curve="PR", name="PR-AUC")],
     )
 
     return model
@@ -70,7 +70,7 @@ def run_cv(
     test_path=TEST_PATH,
     output_path=OUTPUT_PATH,
     epochs=1,
-    batch_size=216,
+    batch_size=32,
     rand_seed=0,
     verbose=0,
     k=5,
@@ -79,15 +79,21 @@ def run_cv(
     keras.utils.set_random_seed(rand_seed)
 
     X, y, g = load_train_data(data_path=train_path, target_label="class_label")
-    build = build_model(X)
+
 
     model = KerasClassifier(
-        model=build,
+        model=build_model,
+        model__x=X,
+        optimizer='adam',
+        optimizer__learning_rate=0.0001,
         epochs=epochs,
         batch_size=batch_size,
         random_state=rand_seed,
         verbose=verbose,
-        class_weight="balanced",
+        callbacks=keras.callbacks.EarlyStopping,
+        callbacks__monitor="loss",
+        callbacks__patience=6,
+        class_weight="balanced"
     )
 
     print(f"Running {k}-fold cross-validation...")
@@ -98,7 +104,7 @@ def run_cv(
         y,
         cv=fetch_k_fold_cv_indicies(X, y, g, k=k),
         scoring="average_precision",
-        return_estimator=True,
+        return_estimator=True
     )
 
     print("CV results:", results["test_score"], sep="\n")

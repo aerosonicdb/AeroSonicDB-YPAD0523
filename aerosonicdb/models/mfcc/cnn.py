@@ -2,15 +2,17 @@
 """CNN model classifier implementation and training entrypoint."""
 import os
 
-import absl.logging
+import logging
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
+
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from scikeras.wrappers import KerasClassifier
 from sklearn.metrics import PrecisionRecallDisplay, average_precision_score
 from sklearn.model_selection import cross_validate
-from tensorflow import keras
-from tensorflow.keras import Sequential, layers
+import keras
+from keras import Sequential, layers
 
 from aerosonicdb.utils import (
     fetch_k_fold_cv_indicies,
@@ -20,9 +22,6 @@ from aerosonicdb.utils import (
     load_train_data,
     train_val_split,
 )
-
-absl.logging.set_verbosity(absl.logging.ERROR)
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.FATAL)
 
 
 ROOT_PATH = get_project_root()
@@ -37,8 +36,10 @@ def build_model(input_shape):
     """Define CNN model architecture."""
     return Sequential(
         [
+            # input
+            layers.Input(shape=input_shape),
             # 1st conv layer
-            layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape),
+            layers.Conv2D(32, (3, 3), activation="relu"),
             layers.MaxPooling2D((3, 3), strides=(2, 2), padding="same"),
             layers.Dropout(0.4),
             # 2nd conv layer
@@ -79,7 +80,7 @@ def run_cv(
     test_path=TEST_PATH,
     output_path=OUTPUT_PATH,
     epochs=1,
-    batch_size=216,
+    batch_size=32,
     rand_seed=0,
     verbose=0,
     k=5,
@@ -88,13 +89,17 @@ def run_cv(
     keras.utils.set_random_seed(rand_seed)
 
     X, y, g = load_train_data(data_path=train_path, target_label="class_label")
-    build = init_model(X)
+    # build = init_model(X)
     model = KerasClassifier(
-        model=build,
+        model=init_model,
+        model__x=X,
         epochs=epochs,
         batch_size=batch_size,
         random_state=rand_seed,
         verbose=verbose,
+        callbacks=keras.callbacks.EarlyStopping,
+        callbacks__monitor="loss",
+        callbacks__patience=6,
         class_weight="balanced",
     )
 
