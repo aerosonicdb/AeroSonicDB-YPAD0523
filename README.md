@@ -1,3 +1,8 @@
+## 2024 UPDATE: 
+This branch has been created to preserve the original data presented in the publication listed below. Please note that running the notebooks in this branch may not produce the exact same cross-validation results as published, however they will fall within statistically significant ranges of the original paper.
+
+Unless you have a specific reason to work with this branch, it is recommended to work with the actively maintained main branch https://github.com/aerosonicdb/AeroSonicDB-YPAD0523
+
 # AeroSonicDB-YPAD0523
 Download and get started with the AeroSonicDB-YPAD0523 dataset of low-altitude aircraft sounds.
 https://zenodo.org/record/8371595
@@ -6,7 +11,8 @@ https://zenodo.org/record/8371595
 The methodology for collecting this dataset is described in; Downward, B., & Nordby, J. (2023). The AeroSonicDB (YPAD-0523) Dataset for Acoustic Detection and Classification of Aircraft. [ArXiv, abs/2311.06368](https://arxiv.org/abs/2311.06368).
 
 ## Requirements
-- Python 3
+- Python 3.11
+- Tensorflow 2.14.0 - 2.15.1
 
 ## Get started
 1. ### Clone repository
