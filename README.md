@@ -2,7 +2,7 @@
 Download and get started with the AeroSonicDB-YPAD0523 dataset of low-altitude aircraft sounds.
 https://zenodo.org/record/8371595
 
-*PLEASE NOTE:* Please move to the 2023-report-results branch (https://github.com/aerosonicdb/AeroSonicDB-YPAD0523/tree/report-results-2023) for the software used in the 2023 paper.
+*Nov 2024 UPDATE:* Recently upgraded codebase to run with Tensorflow 2.16+ and Keras 3. To review the code used in the 2023 Arxiv paper, please navigate to the 2023-report-results branch (https://github.com/aerosonicdb/AeroSonicDB-YPAD0523/tree/report-results-2023).
 
 ### Publication
 The methodology for collecting this dataset is described in; Downward, B., & Nordby, J. (2023). The AeroSonicDB (YPAD-0523) Dataset for Acoustic Detection and Classification of Aircraft. [ArXiv, abs/2311.06368](https://arxiv.org/abs/2311.06368).
