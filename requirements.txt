@@ -1,9 +1,10 @@
-librosa
-tensorflow==2.10.0
-scikeras
-scikit-learn
+librosa==0.10.0.post2
+scikit-learn==1.4.1.post1
+scipy==1.11.4
+tensorflow==2.15.1
+scikeras==0.11.0
 jupyter
 notebook
-pandas
 numpy
+pandas
 matplotlib
